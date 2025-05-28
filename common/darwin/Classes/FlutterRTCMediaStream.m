@@ -63,7 +63,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
 }
 
 - (NSArray<AVCaptureDevice*> *)captureDevices {
-    if (@available(iOS 13.0, macOS 10.15, macCatalyst 14.0, tvOS 17.0, *)) {
+    if (@available(iOS 13.0, macOS 10.15, macCatalyst 14.0, *)) {
         NSMutableArray<AVCaptureDeviceType> *deviceTypes = [NSMutableArray arrayWithObjects:
 #if TARGET_OS_IPHONE
             AVCaptureDeviceTypeBuiltInTripleCamera,
@@ -83,11 +83,15 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
         }
 #endif
 
-        // Conditionally add AVCaptureDeviceTypeContinuityCamera and AVCaptureDeviceTypeExternal
+        // Only include ContinuityCamera and External if SDK supports iOS 17.0+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 170000
         if (@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)) {
-            [deviceTypes addObject:AVCaptureDeviceTypeContinuityCamera];
-            [deviceTypes addObject:AVCaptureDeviceTypeExternal];
+            [deviceTypes addObjectsFromArray:@[
+                AVCaptureDeviceTypeContinuityCamera,
+                AVCaptureDeviceTypeExternal
+            ]];
         }
+#endif
 
         return [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:deviceTypes
                                                                       mediaType:AVMediaTypeVideo
