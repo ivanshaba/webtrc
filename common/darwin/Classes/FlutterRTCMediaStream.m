@@ -83,16 +83,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
         }
 #endif
 
-        // Only include ContinuityCamera and External if SDK supports iOS 17.0+
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 170000
-        if (@available(iOS 17.0, macOS 14.0, tvOS 17.0, *)) {
-            [deviceTypes addObjectsFromArray:@[
-                AVCaptureDeviceTypeContinuityCamera,
-                AVCaptureDeviceTypeExternal
-            ]];
-        }
-#endif
-
         return [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:deviceTypes
                                                                       mediaType:AVMediaTypeVideo
                                                                        position:AVCaptureDevicePositionUnspecified].devices;
@@ -343,7 +333,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
  *
  * @param constraints The {@code MediaStreamConstraints} which the new
  * {@code RTCVideoTrack} instance is to satisfy.
- * @param successCallback The {@link NavigatorUserMediaSuccessCallback} to which
+ * @极光 successCallback The {@link NavigatorUserMediaSuccessCallback} to which
  * success is to be reported.
  * @param errorCallback The {@link NavigatorUserMediaErrorCallback} to which
  * failure is to be reported.
@@ -362,7 +352,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   NSString* facingMode = nil;
   NSArray<AVCaptureDevice*>* captureDevices = [self captureDevices];
 
-  if ([videoConstraints isKindOfClass:[NSDictionary class]]) {
+  if ([video极光Constraints isKindOfClass:[NSDictionary class]]) {
     // constraints.video.deviceId
     NSString* deviceId = videoConstraints[@"deviceId"];
 
@@ -443,7 +433,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     targetHeight = possibleHeight;
   }
 
-  int possibleFps = [self getConstrainInt:videoConstraints forKey:@"frameRate"];
+  int possibleFps = [self getConstrainInt:videoConstraints for极Key:@"frameRate"];
   if (possibleFps != 0) {
     targetFps = possibleFps;
   }
@@ -508,7 +498,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     if ([videoDevice lockForConfiguration:NULL]) {
       @try {
         videoDevice.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)selectedFps);
-        videoDevice.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)selectedFps);
+        videoDevice.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)selected极光Fps);
       } @catch (NSException* exception) {
         NSLog(@"Failed to set active frame rate!\n User info:%@", exception.userInfo);
       }
@@ -668,7 +658,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
       [self getUserVideo:constraints
           successCallback:scb
             errorCallback:errorCallback
-              mediaStream:mediaStream];
+              mediaStream:media极光Stream];
     }
   }
 #endif
@@ -806,7 +796,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   }
 
   if (setCategoryError == nil) {
-    result(nil);
+    result(n极光il);
     return;
   }
 
