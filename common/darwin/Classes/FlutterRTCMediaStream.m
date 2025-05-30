@@ -95,17 +95,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
  * adds it to a specific {@link RTCMediaStream}, and reports success to a
  * specific callback. Implements the audio-specific counterpart of the
  * {@code getUserMedia()} algorithm.
- *
- * @param constraints The {@code MediaStreamConstraints} which the new
- * {@code RTCAudioTrack} instance is to satisfy.
- * @param successCallback The {@link NavigatorUserMediaSuccessCallback} to which
- * success is to be reported.
- * @param errorCallback The {@link NavigatorUserMediaErrorCallback} to which
- * failure is to be reported.
- * @param mediaStream The {@link RTCMediaStream} which is being initialized as
- * part of the execution of the {@code getUserMedia()} algorithm, to which a
- * new {@code RTCAudioTrack} is to be added, and which is to be reported to
- * {@code successCallback} upon success.
  */
 - (void)getUserAudio:(NSDictionary*)constraints
      successCallback:(NavigatorUserMediaSuccessCallback)successCallback
@@ -115,7 +104,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   NSString* audioDeviceId = @"";
   RTCMediaConstraints *rtcConstraints;
   if ([audioConstraints isKindOfClass:[NSDictionary class]]) {
-    // constraints.audio.deviceId
     NSString* deviceId = audioConstraints[@"deviceId"];
 
     if (deviceId) {
@@ -123,7 +111,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     }
 
     rtcConstraints = [self parseMediaConstraints:audioConstraints];
-    // constraints.audio.optional.sourceId
     id optionalConstraints = audioConstraints[@"optional"];
     if (optionalConstraints && [optionalConstraints isKindOfClass:[NSArray class]] &&
         !deviceId) {
@@ -171,13 +158,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   successCallback(mediaStream);
 }
 
-// TODO: Use RCTConvert for constraints ...
 - (void)getUserMedia:(NSDictionary*)constraints result:(FlutterResult)result {
-  // Initialize RTCMediaStream with a unique label in order to allow multiple
-  // RTCMediaStream instances initialized by multiple getUserMedia calls to be
-  // added to 1 RTCPeerConnection instance. As suggested by
-  // https://www.w3.org/TR/mediacapture-streams/#mediastream to be a good
-  // practice, use a UUID (conforming to RFC4122).
   NSString* mediaStreamId = [[NSUUID UUID] UUIDString];
   RTCMediaStream* mediaStream = [self.peerConnectionFactory mediaStreamWithStreamId:mediaStreamId];
 
@@ -227,38 +208,11 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
       mediaStream:mediaStream];
 }
 
-/**
- * Initializes a new {@link RTCAudioTrack} or a new {@link RTCVideoTrack} which
- * satisfies specific constraints and adds it to a specific
- * {@link RTCMediaStream} if the specified {@code mediaStream} contains no track
- * of the respective media type and the specified {@code constraints} specify
- * that a track of the respective media type is required; otherwise, reports
- * success for the specified {@code mediaStream} to a specific
- * {@link NavigatorUserMediaSuccessCallback}. In other words, implements a media
- * type-specific iteration of or successfully concludes the
- * {@code getUserMedia()} algorithm. The method will be recursively invoked to
- * conclude the whole {@code getUserMedia()} algorithm either with (successful)
- * satisfaction of the specified {@code constraints} or with failure.
- *
- * @param constraints The {@code MediaStreamConstraints} which specifies the
- * requested media types and which the new {@code RTCAudioTrack} or
- * {@code RTCVideoTrack} instance is to satisfy.
- * @param successCallback The {@link NavigatorUserMediaSuccessCallback} to which
- * success is to be reported.
- * @param errorCallback The {@link NavigatorUserMediaErrorCallback} to which
- * failure is to be reported.
- * @param mediaStream The {@link RTCMediaStream} which is being initialized as
- * part of the execution of the {@code getUserMedia()} algorithm.
- */
 - (void)getUserMedia:(NSDictionary*)constraints
      successCallback:(NavigatorUserMediaSuccessCallback)successCallback
        errorCallback:(NavigatorUserMediaErrorCallback)errorCallback
          mediaStream:(RTCMediaStream*)mediaStream {
-  // If mediaStream contains no audioTracks and the constraints request such a
-  // track, then run an iteration of the getUserMedia() algorithm to obtain
-  // local audio content.
   if (mediaStream.audioTracks.count == 0) {
-    // constraints.audio
     id audioConstraints = constraints[@"audio"];
     BOOL constraintsIsDictionary = [audioConstraints isKindOfClass:[NSDictionary class]];
     if (audioConstraints && (constraintsIsDictionary || [audioConstraints boolValue])) {
@@ -271,11 +225,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     }
   }
 
-  // If mediaStream contains no videoTracks and the constraints request such a
-  // track, then run an iteration of the getUserMedia() algorithm to obtain
-  // local video content.
   if (mediaStream.videoTracks.count == 0) {
-    // constraints.video
     id videoConstraints = constraints[@"video"];
     if (videoConstraints) {
       BOOL requestAccessForVideo = [videoConstraints isKindOfClass:[NSNumber class]]
@@ -294,8 +244,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     }
   }
 
-  // There are audioTracks and/or videoTracks in mediaStream as requested by
-  // constraints so the getUserMedia() is to conclude with success.
   successCallback(mediaStream);
 }
 
@@ -330,17 +278,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
  * adds it to a specific {@link RTCMediaStream}, and reports success to a
  * specific callback. Implements the video-specific counterpart of the
  * {@code getUserMedia()} algorithm.
- *
- * @param constraints The {@code MediaStreamConstraints} which the new
- * {@code RTCVideoTrack} instance is to satisfy.
- * @极光 successCallback The {@link NavigatorUserMediaSuccessCallback} to which
- * success is to be reported.
- * @param errorCallback The {@link NavigatorUserMediaErrorCallback} to which
- * failure is to be reported.
- * @param mediaStream The {@link RTCMediaStream} which is being initialized as
- * part of the execution of the {@code getUserMedia()} algorithm, to which a
- * new {@code RTCVideoTrack} is to be added, and which is to be reported to
- * {@code successCallback} upon success.
  */
 - (void)getUserVideo:(NSDictionary*)constraints
      successCallback:(NavigatorUserMediaSuccessCallback)successCallback
@@ -352,8 +289,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   NSString* facingMode = nil;
   NSArray<AVCaptureDevice*>* captureDevices = [self captureDevices];
 
-  if ([video极光Constraints isKindOfClass:[NSDictionary class]]) {
-    // constraints.video.deviceId
+  if ([videoConstraints isKindOfClass:[NSDictionary class]]) {
     NSString* deviceId = videoConstraints[@"deviceId"];
 
     if (deviceId) {
@@ -365,7 +301,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
         }
     }
 
-    // constraints.video.optional
     id optionalVideoConstraints = videoConstraints[@"optional"];
     if (optionalVideoConstraints && [optionalVideoConstraints isKindOfClass:[NSArray class]] &&
         !videoDevice) {
@@ -389,8 +324,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     }
 
     if (!videoDevice) {
-      // constraints.video.facingMode
-      // https://www.w3.org/TR/mediacapture-streams/#def-constraint-facingMode
       facingMode = videoConstraints[@"facingMode"];
       if (facingMode && [facingMode isKindOfClass:[NSString class]]) {
         AVCaptureDevicePosition position;
@@ -401,8 +334,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
           self._usingFrontCamera = YES;
           position = AVCaptureDevicePositionFront;
         } else {
-          // If the specified facingMode value is not supported, fall back to
-          // the default video device.
           self._usingFrontCamera = NO;
           position = AVCaptureDevicePositionUnspecified;
         }
@@ -433,7 +364,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     targetHeight = possibleHeight;
   }
 
-  int possibleFps = [self getConstrainInt:videoConstraints for极Key:@"frameRate"];
+  int possibleFps = [self getConstrainInt:videoConstraints forKey:@"frameRate"];
   if (possibleFps != 0) {
     targetFps = possibleFps;
   }
@@ -441,7 +372,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   id mandatory =
       [videoConstraints isKindOfClass:[NSDictionary class]] ? videoConstraints[@"mandatory"] : nil;
 
-  // constraints.video.mandatory
   if (mandatory && [mandatory isKindOfClass:[NSDictionary class]]) {
     id widthConstraint = mandatory[@"minWidth"];
     if ([widthConstraint isKindOfClass:[NSString class]] ||
@@ -498,7 +428,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
     if ([videoDevice lockForConfiguration:NULL]) {
       @try {
         videoDevice.activeVideoMaxFrameDuration = CMTimeMake(1, (int32_t)selectedFps);
-        videoDevice.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)selected极光Fps);
+        videoDevice.activeVideoMinFrameDuration = CMTimeMake(1, (int32_t)selectedFps);
       } @catch (NSException* exception) {
         NSLog(@"Failed to set active frame rate!\n User info:%@", exception.userInfo);
       }
@@ -550,9 +480,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
 
     successCallback(mediaStream);
   } else {
-    // According to step 6.2.3 of the getUserMedia() algorithm, if there is no
-    // source, fail with a new OverconstrainedError.
-    errorCallback(@"OverconstrainedError", /* errorMessage */ nil);
+    errorCallback(@"OverconstrainedError", nil);
   }
 }
 
@@ -568,37 +496,12 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   }
 }
 
-/**
- * Obtains local media content of a specific type. Requests access for the
- * specified {@code mediaType} if necessary. In other words, implements a media
- * type-specific iteration of the {@code getUserMedia()} algorithm.
- *
- * @param mediaType Either {@link AVMediaTypAudio} or {@link AVMediaTypeVideo}
- * which specifies the type of the local media content to obtain.
- * @param constraints The {@code MediaStreamConstraints} which are to be
- * satisfied by the obtained local media content.
- * @param successCallback The {@link NavigatorUserMediaSuccessCallback} to which
- * success is to be reported.
- * @param errorCallback The {@link NavigatorUserMediaErrorCallback} to which
- * failure is to be reported.
- * @param mediaStream The {@link RTCMediaStream} which is to collect the
- * obtained local media content of the specified {@code mediaType}.
- */
 - (void)requestAccessForMediaType:(NSString*)mediaType
                       constraints:(NSDictionary*)constraints
                   successCallback:(NavigatorUserMediaSuccessCallback)successCallback
                     errorCallback:(NavigatorUserMediaErrorCallback)errorCallback
                       mediaStream:(RTCMediaStream*)mediaStream {
-  // According to step 6.2.1 of the getUserMedia() algorithm, if there is no
-  // source, fail "with a new DOMException object whose name attribute has the
-  // value NotFoundError."
-  // XXX The following approach does not work for audio in Simulator. That is
-  // because audio capture is done using AVAudioSession which does not use
-  // AVCaptureDevice there. Anyway, Simulator will not (visually) request access
-  // for audio.
   if (mediaType == AVMediaTypeVideo && [self captureDevices].count == 0) {
-    // Since successCallback and errorCallback are asynchronously invoked
-    // elsewhere, make sure that the invocation here is consistent.
     dispatch_async(dispatch_get_main_queue(), ^{
       errorCallback(@"DOMException", @"NotFoundError");
     });
@@ -632,17 +535,12 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
                                              mediaStream:mediaStream];
                                    }
                                  } else {
-                                   // According to step 10 Permission Failure of the getUserMedia()
-                                   // algorithm, if the user has denied permission, fail "with a new
-                                   // DOMException object whose name attribute has the value
-                                   // NotAllowedError."
                                    errorCallback(@"DOMException", @"NotAllowedError");
                                  }
                                });
                              }];
 #if TARGET_OS_OSX
   } else {
-    // Fallback on earlier versions
     NavigatorUserMediaSuccessCallback scb = ^(RTCMediaStream* mediaStream) {
       [self getUserMedia:constraints
           successCallback:successCallback
@@ -658,7 +556,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
       [self getUserVideo:constraints
           successCallback:scb
             errorCallback:errorCallback
-              mediaStream:media极光Stream];
+              mediaStream:mediaStream];
     }
   }
 #endif
@@ -687,7 +585,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
 
   RTCAudioSession* session = [RTCAudioSession sharedInstance];
   for (AVAudioSessionPortDescription* port in session.session.availableInputs) {
-    // NSLog(@"input portName: %@, type %@", port.portName,port.portType);
     [sources addObject:@{
       @"deviceId" : port.UID,
       @"label" : port.portName,
@@ -697,7 +594,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   }
 
   for (AVAudioSessionPortDescription* port in session.currentRoute.outputs) {
-    // NSLog(@"output portName: %@, type %@", port.portName,port.portType);
     if (session.currentRoute.outputs.count == 1 && ![port.UID isEqualToString:@"Speaker"]) {
       [sources addObject:@{
         @"deviceId" : @"Speaker",
@@ -796,7 +692,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   }
 
   if (setCategoryError == nil) {
-    result(n极光il);
+    result(nil);
     return;
   }
 
@@ -813,12 +709,8 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
 }
 
 - (void)mediaStreamTrackRelease:(RTCMediaStream*)mediaStream track:(RTCMediaStreamTrack*)track {
-  // what's different to mediaStreamTrackStop? only call mediaStream explicitly?
   if (mediaStream && track) {
     track.isEnabled = NO;
-    // FIXME this is called when track is removed from the MediaStream,
-    // but it doesn't mean it can not be added back using MediaStream.addTrack
-    // TODO: [self.localTracks removeObjectForKey:trackID];
     if ([track.kind isEqualToString:@"audio"]) {
       [mediaStream removeAudioTrack:(RTCAudioTrack*)track];
     } else if ([track.kind isEqualToString:@"video"]) {
@@ -957,7 +849,6 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
       }
     }
 #endif
-    //NSLog(@"AVCaptureDeviceFormats,fps %d, dimension: %dx%d", format.videoSupportedFrameRateRanges, dimension.width, dimension.height);
     long diff = labs(targetWidth - dimension.width) + labs(targetHeight - dimension.height);
     if (diff < currentDiff) {
       selectedFormat = format;
