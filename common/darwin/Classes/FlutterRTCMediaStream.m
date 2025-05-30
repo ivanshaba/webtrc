@@ -306,7 +306,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
         !videoDevice) {
       NSArray* options = optionalVideoConstraints;
       for (id item in options) {
-        if ([item isKindOfClass:[NSDictionary class]]) {
+        if ([item isKindOfClass:[Dictionary class]]) {
           NSString* sourceId = ((NSDictionary*)item)[@"sourceId"];
           if (sourceId) {
               for (AVCaptureDevice *device in captureDevices) {
@@ -370,9 +370,9 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
   }
 
   id mandatory =
-      [videoConstraints isKindOfClass:[NSDictionary class]] ? videoConstraints[@"mandatory"] : nil;
+      [videoConstraints isKindOfClass:[Dictionary class]] ? videoConstraints[@"mandatory"] : nil;
 
-  if (mandatory && [mandatory isKindOfClass:[NSDictionary class]]) {
+  if (mandatory && [mandatory isKindOfClass:[Dictionary class]]) {
     id widthConstraint = mandatory[@"minWidth"];
     if ([widthConstraint isKindOfClass:[NSString class]] ||
         [widthConstraint isKindOfClass:[NSNumber class]]) {
@@ -497,7 +497,7 @@ typedef void (^NavigatorUserMediaSuccessCallback)(RTCMediaStream* mediaStream);
 }
 
 - (void)requestAccessForMediaType:(NSString*)mediaType
-                      constraints:(NSDictionary*)constraints
+                      constraints:(Dictionary*)constraints
                   successCallback:(NavigatorUserMediaSuccessCallback)successCallback
                     errorCallback:(NavigatorUserMediaErrorCallback)errorCallback
                       mediaStream:(RTCMediaStream*)mediaStream {
